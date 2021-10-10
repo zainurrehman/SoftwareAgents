@@ -1,0 +1,41 @@
+//ALL COMMENTS STARTING WITH // WILL BE IGNORED WHILE PARSING THE TEXT FILE
+//Assignment 1. Text file for reactive/state-based soccer agent
+//
+//BallSeenByPlayer,BallCloseToPlayer,GoalVisibility->Action,Power/Angle,Direction
+//BallSeenByPlayer is a set with values {Y,N,F}
+//BallCloseToPlayer is a set with values {Y,N,U}
+//GoalVisibility is a set with values {Y,N,F}
+//Power/Angle is needed when the Action is kick or dash. Otherwise, put x for power/angle.
+//Direction is needed when Action is kick or turn. Otherwise, put x for direction
+//Note that power/angle means power OR angle. Both are integers and for simplicity, I have used the variable "Power" in the Brain.java when parsing the text file.
+//
+//When kick is necessary:
+//BallSeenByPlayer,BallCloseToPlayer,GoalVisibility->Action,power/angle,Direction
+F, Y, F -> Kick,100,goal
+Y, Y, F -> Kick,100,goal
+Y, Y, Y -> Kick,100,goal
+
+//When turning towards the goal is necessary
+//BallSeenByPlayer,BallCloseToPlayer,GoalVisibility->Action,power/angle,Direction
+F, Y, Y -> Turn,x,goal
+
+//When dash is necessary
+//BallSeenByPlayer,BallCloseToPlayer,GoalVisibility->Action,power/angle,Direction
+F, N, F -> Dash,100,x
+F, N, Y -> Dash,100,x
+F, N, N -> Dash,100,x
+
+//When turn to ball direction is necessary
+//BallSeenByPlayer,BallCloseToPlayer,GoalVisibility->Action,power/angle,Direction
+Y, N, F -> Turn,x,ball
+Y, N, N -> Turn,x,ball
+Y, N, Y -> Turn,x,ball
+
+//When turn at 40 int power is necessary
+//BallSeenByPlayer,BallCloseToPlayer,GoalVisibility->Action,power/angle,Direction
+N, U, N -> Turn,40,x
+N, U, Y -> Turn,40,x
+F, Y, N -> Turn,40,x
+Y, Y, N -> Turn,40,x
+N, U, N -> Turn,40,x
+N, U, F -> Turn,40,x
