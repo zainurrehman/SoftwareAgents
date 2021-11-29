@@ -1,0 +1,104 @@
+// All lines starting with // are comments and won't be processed by the parser.
+//
+// robocupRules.txt file
+// =====================
+// This text file only contains the rules. Rules are of the form Left Hand Side => Right Hand Side.
+// Left Hand Side Antecedents are assertions or facts separated by an And ' & '. Example: fact1 & fact2 & fact 3.
+// Right Hand Side Consequents are either facts/assertions or actions.
+// If the Right Hand Side Consequent is an action, it starts with the string "action" for the parser to know that Right Hand Side Consequent is an action.
+// The parameters for the action are further separated by a comma ' , '. Example: action,turn,40
+//  
+// There are no facts present in this text file. As discussed with the professor in
+// one of the office hour meetings, the facts will be what the agent sees in each iteration
+// of the forever while loop. If the user wants, facts can still be written in this file.
+// The parser of the text file considers each line that contains a implication sign ' => ' as Rule.
+// 
+//	Legend of predicates/facts on the right hand side of the rules:
+//	ball_visible: Ball is visible to the agent
+//	ball_dist_>_x or ball_dist_<_x: Ball is at a distance greater then or less than x
+//	ball_dir_>_x or ball_dir_<_x: Ball is in the the direction of x degrees left or right of the line of agent sight
+//  flag_dir_<_x or flag_dir_>x: A flag is in the direction of x degrees left or right of the line of agent sight
+//	ball_not_visible: Ball is not visible to the agent
+//	ball_infront: Ball is in front in the line of agent's sight.
+//	x_visible: a flag x is visible to the agent
+//  All mentioned predicates are processed in the Brain.java file.
+//  Here are the Rules
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// Rules for finding the ball
+// --------------------------
+// find ball instead of circling around to find the ball. Initially, my rules were like: 
+// ball_visible & ball_dir_=_0 => ball_infront
+// But due to this rule, the agent was unable to find the ball and kept revolving in circles. 
+// To fix the problem, I used the direction angles with smaller and larger values such as 5 and 50 
+// to determine the approximate angle of the ball. Once these new rules were implemented, agent was able to 
+// find the ball instead of continuously revolving in circles. 
+
+ball_not_visible & ball_direction_unknown => action,turn,40
+ball_visible & ball_dist_>_1 => ball_far
+ball_visible & ball_dist_<_1 => ball_close
+ball_far & ball_visible & ball_dir_>_50 => action,turn,40
+ball_far & ball_visible & ball_dir_<_-50 => action,turn,-40
+ball_far & ball_visible & ball_dir_>_5 => action,turn,5
+ball_far & ball_visible & ball_dir_<_-5 => action,turn,-5
+ball_visible & ball_dir_>_10 => ball_to_right
+ball_visible & ball_dir_<_-10 => ball_to_left
+ball_visible & ball_dir_<_10 & ball_dir_>_-10 => ball_infront
+ball_not_visible & ball_to_right => action,turn,40
+ball_not_visible & ball_to_left => action,turn,-40
+ball_visible & ball_to_right => action,turn,40
+ball_visible & ball_to_left => action,turn,-40
+ball_far & ball_infront => action,dash,70
+ball_close & ball_visible & ball_infront => action,kick,0
+
+// Looking left or right rules
+// ----------------------------
+rGoal_visible => looking_right
+lGoal_visible => looking_left
+flagGrt_visible => looking_right
+flagGlt_visible => looking_left
+flagGrb_visible => looking_right
+flagGlb_visible => looking_left
+flagRt_visible => looking_right
+flagLt_visible => looking_left
+flagRb_visible => looking_right
+flagLb_visible => looking_left
+
+// kick rules
+// ----------
+ball_close & ball_visible & flagGrt_dir_<_0 & flagGrb_dir_>_0 => action,kick,0
+ball_close & ball_visible & flagGlt_dir_>_0 & flagGlb_dir_<_0 => action,kick,0
+
+// Other supporting rules
+// ----------------------
+ball_close & looking_right & flagGrt_dir_>_0 => action,turn,20
+ball_close & looking_right & flagGrb_dir_<_0 => action,turn,-20
+ball_close & ball_not_visible & flagGrt_dir_<_0 & flagGrb_dir_>_0 => action,dash,-70
+ball_close & looking_left & flagGlt_dir_<_0 => action,turn,-18
+ball_close & looking_left & flagGlb_dir_>_0 => action,turn,18
+ball_close & ball_not_visible & flagGlt_dir_>_0 & flagGlb_dir_<_0 => action,dash,-70
+ball_close & rGoal_not_visible & lGoal_not_visible => action,turn,40
+
+// Examples output from running the robocup simulation against this text file:
+// ===========================================================================
+// 0 flagGrt_visible=>looking_right
+// 1 flagGrb_visible=>looking_right
+// 2 flagRt_visible=>looking_right
+// 3 flagRb_visible=>looking_right
+// 4 rGoal_visible=>looking_right
+// 5 ball_visible&ball_dist_>_1=>ball_far
+// 6 ball_visible&ball_dir_<_10&ball_dir_>_-10=>ball_infront
+// 7 ball_far&ball_infront=>action,dash,70
+
+// 0 flagLt_visible=>looking_left
+// 1 ball_visible&ball_dist_>_1=>ball_far
+// 2 ball_far&ball_visible&ball_dir_>_5=>action,turn,5
+
+// 0 flagGlt_visible=>looking_left
+// 1 flagGlb_visible=>looking_left
+// 2 flagLt_visible=>looking_left
+// 3 flagLb_visible=>looking_left
+// 4 lGoal_visible=>looking_left
+// 5 ball_visible&ball_dist_<_1=>ball_close
+// 6 ball_visible&ball_dir_<_10&ball_dir_>_-10=>ball_infront
+// 7 ball_close&ball_visible&flagGlt_dir_>_0&flagGlb_dir_<_0=>action,kick,0
